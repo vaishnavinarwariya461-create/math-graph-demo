@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Neeraj Narwariya">
+    <meta name="description" content="Interactive Math Interview Teaching Suite created by Neeraj Narwariya">
+    <title>Cuemath Demo Suite | Neeraj Narwariya</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        
+        /* Smooth transitions */
+        .transition-all-300 { transition: all 0.3s ease-in-out; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Canvas Container */
+        .canvas-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Sketchpad Grid - Adjusted for overlay visibility */
+        .sketchpad-bg {
+            /* Faint grid that doesn't distract from text */
+            background-image: 
+                linear-gradient(rgba(203, 213, 225, 0.3) 1px, transparent 1px), 
+                linear-gradient(90deg, rgba(203, 213, 225, 0.3) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Math Button Styling */
+        .math-btn {
+            @apply px-4 py-2 text-base font-medium bg-slate-50 border border-slate-200 rounded text-slate-700 hover:bg-white hover:border-indigo-300 hover:text-indigo-600 hover:shadow-sm transition-colors active:bg-slate-100;
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+
+        .tool-btn {
+            @apply flex items-center space-x-2 px-4 py-2 text-sm font-semibold rounded border transition-colors;
+        }
+        .tool-btn-active {
+            @apply bg-indigo-100 text-indigo-700 border-indigo-300;
+        }
+        .tool-btn-inactive {
+            @apply bg-white text-slate-600 border-slate-200 hover:bg-slate-50;
+        }
+
+        /* Full Screen Mode for Editors */
+        .fullscreen-mode {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999;
+            border-radius: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+        }
+
+        /* Maximized Layout Mode (Fallback for Global Fullscreen) */
+        body.layout-maximized {
+            padding: 0 !important;
+        }
+        body.layout-maximized #main-container {
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen transition-all duration-300 text-base pb-12">
+
+    <div id="main-container" class="max-w-6xl mx-auto space-y-12 transition-all duration-300">
+        
+        <!-- Modern Header -->
+        <div class="text-center space-y-6 mb-16 relative">
+            <div class="flex justify-center items-center gap-4">
+                <div class="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-sm font-bold tracking-wide uppercase">Teacher Workspace</div>
+                <button id="app-mode-btn" onclick="toggleGlobalFullScreen()" class="flex items-center space-x-2 px-4 py-1.5 bg-slate-800 text-white rounded-full text-sm font-semibold hover:bg-slate-700 transition-colors shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                    <span>Enter App Mode</span>
+                </button>
+                <button onclick="openInNewWindow()" class="flex items-center space-x-2 px-4 py-1.5 bg-white text-slate-600 border border-slate-200 rounded-full text-sm font-semibold hover:bg-slate-50 transition-colors shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    <span id="new-window-text">Open New Window</span>
+                </button>
+            </div>
+            <h1 class="text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight">Math Interview Demonstration App</h1>
+            <p class="text-slate-500 text-xl max-w-3xl mx-auto">Interactive graphing tools with simultaneous typing and drawing capabilities.</p>
+        </div>
+
+        <!-- Section 1: Cube Root -->
+        <section class="space-y-8">
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600 text-white font-bold text-lg">A</div>
+                <h2 class="text-3xl font-bold text-slate-800">Vertical Tangents & Inflection</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Left Column: Workspace -->
+                <div class="space-y-6">
+                    <!-- Question Card -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="text-base font-semibold text-slate-400 uppercase tracking-wider mb-2">Problem</h3>
+                        <p class="text-slate-800 text-xl font-medium">Find extrema & inflection points:</p>
+                        <div class="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-100 font-mono text-indigo-600 text-xl">f(x) = (x-2)^(1/3)</div>
+                    </div>
+
+                    <!-- Modern Hybrid Editor -->
+                    <div id="editor-container-1" class="bg-white p-1 rounded-xl border border-slate-200 shadow-sm transition-all h-[500px] flex flex-col relative group">
+                        <!-- Toolbar Header -->
+                        <div class="flex flex-wrap justify-between items-center p-3 border-b border-slate-100 bg-slate-50/50 rounded-t-lg shrink-0 gap-3">
+                            <!-- Math Symbols -->
+                            <div class="flex flex-wrap gap-2">
+                                <button class="math-btn" onclick="insertSymbol('area1', '²')">x²</button>
+                                <button class="math-btn" onclick="insertSymbol('area1', '³')">x³</button>
+                                <button class="math-btn font-bold text-lg" title="Power (Exponent)" onclick="insertSymbol('area1', '^')">^</button>
+                                <button class="math-btn" title="x to power" onclick="insertSymbol('area1', 'x^')">x^</button>
+                                <button class="math-btn" onclick="insertSymbol('area1', '√')">√</button>
+                                <button class="math-btn" onclick="insertSymbol('area1', '∞')">∞</button>
+                                <button class="math-btn" onclick="insertSymbol('area1', '≠')">≠</button>
+                                <button class="math-btn" onclick="insertSymbol('area1', '→')">→</button>
+                                <button class="math-btn" onclick="insertSymbol('area1', '±')">±</button>
+                                
+                                <div class="w-px h-8 bg-slate-200 mx-1"></div>
+                                <button class="math-btn not-italic font-mono text-sm" onclick="insertSymbol('area1', 'f\'(x)')">f'</button>
+                                <button class="math-btn not-italic font-mono text-sm" onclick="insertSymbol('area1', 'f\'\'(x)')">f''</button>
+                                <button class="math-btn not-italic font-mono text-sm" onclick="insertSymbol('area1', 'dy/dx')">dy/dx</button>
+                                <button class="math-btn not-italic font-mono text-sm" onclick="insertSymbol('area1', 'd/dx')">d/dx</button>
+                                
+                                <div class="w-px h-8 bg-slate-200 mx-1"></div>
+                                <button class="math-btn" onclick="insertSymbol('area1', '∈')">∈</button>
+                                <button class="math-btn" onclick="insertSymbol('area1', '∪')">∪</button>
+                            </div>
+                            
+                            <!-- Annotation Tools -->
+                            <div class="flex items-center gap-2 pl-2 border-l border-slate-200">
+                                <button id="tool-type-1" onclick="setActiveTool(1, 'type')" class="tool-btn tool-btn-active">
+                                    <span>Type</span>
+                                </button>
+                                <button id="tool-draw-1" onclick="setActiveTool(1, 'draw')" class="tool-btn tool-btn-inactive">
+                                    <span>Draw</span>
+                                </button>
+                                <button id="tool-erase-1" onclick="setActiveTool(1, 'erase')" class="tool-btn tool-btn-inactive">
+                                    <span>Eraser</span>
+                                </button>
+                                <button onclick="clearCanvas(1)" class="tool-btn bg-white text-red-600 border-red-100 hover:bg-red-50 hover:border-red-200">
+                                    <span>Clear Ink</span>
+                                </button>
+                                <button onclick="increaseHeight(1)" class="tool-btn bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300 ml-1">
+                                    <span>+ Height</span>
+                                </button>
+                                <button onclick="toggleEditorFullScreen(1)" id="fs-btn-1" class="tool-btn bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300 ml-1">
+                                    <span>⛶ Editor FS</span>
+                                </button>
+                                <button onclick="toggleGraph(1)" id="toggle-graph-btn-1" class="tool-btn bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300 ml-1">
+                                    <span>Hide Graph</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Stacked Input Area -->
+                        <div class="relative w-full flex-grow overflow-hidden bg-white">
+                            <!-- Layer 1: Text Area (Bottom) -->
+                            <textarea id="area1" spellcheck="false" class="absolute inset-0 w-full h-full p-6 bg-transparent border-none focus:ring-0 resize-none font-mono text-lg leading-relaxed text-slate-700 z-0" 
+                                style="line-height: 2.5rem;"
+                                placeholder="Type your explanation here..."></textarea>
+                            
+                            <!-- Layer 2: Canvas (Top - Overlay) -->
+                            <canvas id="hw-canvas1" class="absolute inset-0 w-full h-full sketchpad-bg z-10 pointer-events-none"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Visualization -->
+                <div class="space-y-6">
+                    <!-- Main Graph -->
+                    <div id="graph-card-1" class="canvas-card h-[400px] relative group">
+                        <div class="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur border border-indigo-100 text-indigo-700 text-sm px-3 py-1.5 rounded-md font-medium shadow-sm pointer-events-none">
+                            Interactive Graph
+                        </div>
+                        <canvas id="canvas1"></canvas>
+                        <!-- Hover Tip -->
+                        <div class="absolute bottom-4 right-4 z-10 bg-slate-800 text-white text-xs px-3 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                            Hover to track values
+                        </div>
+                    </div>
+
+                    <!-- Collapsible Scratchpad -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <button onclick="toggleElement('sketch-container-1', this)" class="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 transition-colors text-sm font-medium text-slate-600">
+                            <span><span>Show Extra Scratchpad</span> <span class="text-slate-400 font-normal">(Separate drawing area)</span></span>
+                            <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div id="sketch-container-1" class="hidden border-t border-slate-200">
+                            <div class="relative h-64 sketchpad-bg">
+                                <canvas id="sketch1" class="w-full h-full"></canvas>
+                                <div class="absolute top-3 right-3 flex space-x-2">
+                                    <button id="eraser1" class="p-2 bg-white border border-slate-200 rounded shadow-sm text-slate-600 hover:text-indigo-600 text-sm">Eraser</button>
+                                    <button id="clear1" class="p-2 bg-white border border-slate-200 rounded shadow-sm text-slate-600 hover:text-red-600 text-sm">Clear</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="w-full h-px bg-slate-200 my-10"></div>
+
+        <!-- Section 2: Rational Function -->
+        <section class="space-y-8">
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center justify-center w-10 h-10 rounded-full bg-rose-600 text-white font-bold text-lg">B</div>
+                <h2 class="text-3xl font-bold text-slate-800">Rational Functions & Absolute Value</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Left Column: Workspace -->
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="text-base font-semibold text-slate-400 uppercase tracking-wider mb-2">Problem</h3>
+                        <p class="text-slate-800 text-xl font-medium">Graph the function:</p>
+                        <div class="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-100 font-mono text-rose-600 text-xl overflow-x-auto">
+                            f(x) = (2-x) / ((x-1) * √((x-2)²))
+                        </div>
+                    </div>
+
+                    <!-- Modern Hybrid Editor -->
+                    <div id="editor-container-2" class="bg-white p-1 rounded-xl border border-slate-200 shadow-sm transition-all h-[500px] flex flex-col relative group">
+                        <div class="flex flex-wrap justify-between items-center p-3 border-b border-slate-100 bg-slate-50/50 rounded-t-lg shrink-0 gap-3">
+                            <!-- Math Symbols -->
+                            <div class="flex flex-wrap gap-2">
+                                <button class="math-btn" onclick="insertSymbol('area2', '²')">x²</button>
+                                <button class="math-btn" onclick="insertSymbol('area2', '|')">|x|</button>
+                                <button class="math-btn font-bold text-lg" title="Power (Exponent)" onclick="insertSymbol('area2', '^')">^</button>
+                                <button class="math-btn" title="x to power" onclick="insertSymbol('area2', 'x^')">x^</button>
+                                <button class="math-btn" onclick="insertSymbol('area2', 'lim')">lim</button>
+                                <button class="math-btn" onclick="insertSymbol('area2', '√')">√</button>
+                                <button class="math-btn" onclick="insertSymbol('area2', '∞')">∞</button>
+                                <button class="math-btn" onclick="insertSymbol('area2', '±')">±</button>
+                                <button class="math-btn not-italic font-mono text-sm" onclick="insertSymbol('area2', 'x→2⁻')">x→2⁻</button>
+                            </div>
+                            
+                            <!-- Annotation Tools -->
+                            <div class="flex items-center gap-2 pl-2 border-l border-slate-200">
+                                <button id="tool-type-2" onclick="setActiveTool(2, 'type')" class="tool-btn tool-btn-active">
+                                    <span>Type</span>
+                                </button>
+                                <button id="tool-draw-2" onclick="setActiveTool(2, 'draw')" class="tool-btn tool-btn-inactive">
+                                    <span>Draw</span>
+                                </button>
+                                <button id="tool-erase-2" onclick="setActiveTool(2, 'erase')" class="tool-btn tool-btn-inactive">
+                                    <span>Eraser</span>
+                                </button>
+                                <button onclick="clearCanvas(2)" class="tool-btn bg-white text-red-600 border-red-100 hover:bg-red-50 hover:border-red-200">
+                                    <span>Clear Ink</span>
+                                </button>
+                                <button onclick="increaseHeight(2)" class="tool-btn bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300 ml-1">
+                                    <span>+ Height</span>
+                                </button>
+                                <button onclick="toggleEditorFullScreen(2)" id="fs-btn-2" class="tool-btn bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300 ml-1">
+                                    <span>⛶ Editor FS</span>
+                                </button>
+                                <button onclick="toggleGraph(2)" id="toggle-graph-btn-2" class="tool-btn bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300 ml-1">
+                                    <span>Hide Graph</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Stacked Input Area -->
+                        <div class="relative w-full flex-grow overflow-hidden bg-white">
+                            <textarea id="area2" spellcheck="false" class="absolute inset-0 w-full h-full p-6 bg-transparent border-none focus:ring-0 resize-none font-mono text-lg leading-relaxed text-slate-700 z-0" 
+                                style="line-height: 2.5rem;"
+                                placeholder="Type your explanation here..."></textarea>
+                            
+                            <canvas id="hw-canvas2" class="absolute inset-0 w-full h-full sketchpad-bg z-10 pointer-events-none"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Visualization -->
+                <div class="space-y-6">
+                    <div id="graph-card-2" class="canvas-card h-[400px] relative group">
+                        <div class="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur border border-rose-100 text-rose-700 text-sm px-3 py-1.5 rounded-md font-medium shadow-sm pointer-events-none">
+                            Interactive Graph
+                        </div>
+                        <canvas id="canvas2"></canvas>
+                         <div class="absolute bottom-4 right-4 z-10 bg-slate-800 text-white text-xs px-3 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                            Hover to track values
+                        </div>
+                    </div>
+
+                    <!-- Collapsible Scratchpad -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <button onclick="toggleElement('sketch-container-2', this)" class="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 transition-colors text-sm font-medium text-slate-600">
+                            <span><span>Show Extra Scratchpad</span> <span class="text-slate-400 font-normal">(Separate drawing area)</span></span>
+                            <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div id="sketch-container-2" class="hidden border-t border-slate-200">
+                            <div class="relative h-64 sketchpad-bg">
+                                <canvas id="sketch2" class="w-full h-full"></canvas>
+                                <div class="absolute top-3 right-3 flex space-x-2">
+                                    <button id="eraser2" class="p-2 bg-white border border-slate-200 rounded shadow-sm text-slate-600 hover:text-rose-600 text-sm">Eraser</button>
+                                    <button id="clear2" class="p-2 bg-white border border-slate-200 rounded shadow-sm text-slate-600 hover:text-red-600 text-sm">Clear</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="w-full h-px bg-slate-200 my-10"></div>
+
+        <!-- Section 3: Random Graph Challenge -->
+        <section class="space-y-8">
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center justify-center w-10 h-10 rounded-full bg-emerald-600 text-white font-bold text-lg">C</div>
+                <h2 class="text-3xl font-bold text-slate-800">Random Function Challenge</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Left Column -->
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-base font-semibold text-slate-400 uppercase tracking-wider">Problem</h3>
+                            <div class="flex gap-3">
+                                <button onclick="toggleAnswer()" class="text-sm px-4 py-1.5 bg-amber-100 text-amber-800 border border-amber-200 rounded-full hover:bg-amber-200 transition shadow-sm flex items-center gap-2">
+                                    <span>👁</span> Show Analysis
+                                </button>
+                                <button onclick="generateRandomGraph()" class="text-sm px-4 py-1.5 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition shadow-sm flex items-center gap-2">
+                                    <span>🎲</span> Generate New Function
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-slate-800 text-xl font-medium">Analyze and graph:</p>
+                        <div id="random-func-display" class="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-100 font-mono text-emerald-600 text-xl overflow-x-auto min-h-[4rem] flex items-center">
+                            Click 'Generate' to start...
+                        </div>
+                        <!-- Answer Box -->
+                        <div id="random-answer-display" class="hidden mt-4 p-5 bg-amber-50 rounded-lg border border-amber-200 text-amber-900 text-base font-mono whitespace-pre-wrap shadow-sm">
+                            <!-- Answer text inserted here -->
+                        </div>
+                    </div>
+
+                    <!-- Editor 3 -->
+                    <div id="editor-container-3" class="bg-white p-1 rounded-xl border border-slate-200 shadow-sm transition-all h-[500px] flex flex-col relative group">
+                        <div class="flex flex-wrap justify-between items-center p-3 border-b border-slate-100 bg-slate-50/50 rounded-t-lg shrink-0 gap-3">
+                            <div class="flex flex-wrap gap-2">
+                                <button class="math-btn" onclick="insertSymbol('area3', '²')">x²</button>
+                                <button class="math-btn font-bold text-lg" title="Power (Exponent)" onclick="insertSymbol('area3', '^')">^</button>
+                                <button class="math-btn" title="x to power" onclick="insertSymbol('area3', 'x^')">x^</button>
+                                <button class="math-btn" onclick="insertSymbol('area3', '√')">√</button>
+                                <button class="math-btn" onclick="insertSymbol('area3', '∞')">∞</button>
+                                <button class="math-btn" onclick="insertSymbol('area3', 'f\'')">f'</button>
+                            </div>
+                            <div class="flex items-center gap-2 pl-2 border-l border-slate-200">
+                                <button id="tool-type-3" onclick="setActiveTool(3, 'type')" class="tool-btn tool-btn-active">Type</button>
+                                <button id="tool-draw-3" onclick="setActiveTool(3, 'draw')" class="tool-btn tool-btn-inactive">Draw</button>
+                                <button id="tool-erase-3" onclick="setActiveTool(3, 'erase')" class="tool-btn tool-btn-inactive">Eraser</button>
+                                <button onclick="clearCanvas(3)" class="tool-btn bg-white text-red-600 border-red-100 hover:bg-red-50">Clear</button>
+                                <button onclick="increaseHeight(3)" class="tool-btn bg-white text-slate-600 border-slate-200 hover:bg-slate-50">+ Height</button>
+                                <button onclick="toggleEditorFullScreen(3)" id="fs-btn-3" class="tool-btn bg-white text-slate-600 border-slate-200 hover:bg-slate-50">⛶ FS</button>
+                                <button onclick="toggleGraph(3)" id="toggle-graph-btn-3" class="tool-btn bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Hide</button>
+                            </div>
+                        </div>
+                        <div class="relative w-full flex-grow overflow-hidden bg-white">
+                            <textarea id="area3" spellcheck="false" class="absolute inset-0 w-full h-full p-6 bg-transparent border-none focus:ring-0 resize-none font-mono text-lg leading-relaxed text-slate-700 z-0" style="line-height: 2.5rem;" placeholder="Analyze the function..."></textarea>
+                            <canvas id="hw-canvas3" class="absolute inset-0 w-full h-full sketchpad-bg z-10 pointer-events-none"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="space-y-6">
+                    <div id="graph-card-3" class="canvas-card h-[400px] relative group">
+                        <div class="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur border border-emerald-100 text-emerald-700 text-sm px-3 py-1.5 rounded-md font-medium shadow-sm pointer-events-none">
+                            Random Graph
+                        </div>
+                        <canvas id="canvas3"></canvas>
+                        <div class="absolute bottom-4 right-4 z-10 bg-slate-800 text-white text-xs px-3 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                            Hover to track values
+                        </div>
+                    </div>
+                    
+                    <!-- Side Scratchpad 3 -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <button onclick="toggleElement('sketch-container-3', this)" class="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 transition-colors text-sm font-medium text-slate-600">
+                            <span><span>Show Extra Scratchpad</span></span>
+                            <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div id="sketch-container-3" class="hidden border-t border-slate-200">
+                            <div class="relative h-64 sketchpad-bg">
+                                <canvas id="sketch3" class="w-full h-full"></canvas>
+                                <div class="absolute top-3 right-3 flex space-x-2">
+                                    <button id="eraser3" class="p-2 bg-white border border-slate-200 rounded shadow-sm text-slate-600 hover:text-emerald-600 text-sm">Eraser</button>
+                                    <button id="clear3" class="p-2 bg-white border border-slate-200 rounded shadow-sm text-slate-600 hover:text-red-600 text-sm">Clear</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="fixed bottom-0 right-0 p-3 bg-white/90 backdrop-blur text-sm text-slate-500 font-medium pointer-events-none select-none border-tl-lg shadow-sm z-50">
+            Built by Neeraj Narwariya © 2026
+        </footer>
+
+    </div>
+
+    <script>
+        // --- Utilities ---
+        function insertSymbol(areaId, symbol) {
+            const textarea = document.getElementById(areaId);
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const before = text.substring(0, start);
+            const after = text.substring(end, text.length);
+            
+            textarea.value = before + symbol + after;
+            textarea.selectionStart = textarea.selectionEnd = start + symbol.length;
+            textarea.focus();
+        }
+
+        function toggleElement(id, btn) {
+            const el = document.getElementById(id);
+            const icon = btn.querySelector('svg');
+            
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+                window.dispatchEvent(new Event('resize'));
+            } else {
+                el.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        }
+
+        function increaseHeight(id) {
+            const container = document.getElementById(`editor-container-${id}`);
+            if (container) {
+                // Get current height or default to 400
+                const currentHeight = container.clientHeight;
+                const newHeight = currentHeight + 200;
+                container.style.height = `${newHeight}px`;
+                // Trigger global resize so canvases update their internal buffers
+                window.dispatchEvent(new Event('resize'));
+            }
+        }
+
+        function toggleEditorFullScreen(id) {
+            const container = document.getElementById(`editor-container-${id}`);
+            const btn = document.getElementById(`fs-btn-${id}`);
+            const span = btn.querySelector('span');
+            
+            container.classList.toggle('fullscreen-mode');
+            
+            const isFull = container.classList.contains('fullscreen-mode');
+            
+            if (isFull) {
+                span.textContent = 'Exit FS';
+                btn.classList.add('bg-slate-100');
+            } else {
+                span.textContent = '⛶ Editor FS';
+                btn.classList.remove('bg-slate-100');
+            }
+            
+            // Trigger resize for canvas to adopt new full screen size
+            window.dispatchEvent(new Event('resize'));
+        }
+
+        function toggleGraph(id) {
+            const card = document.getElementById(`graph-card-${id}`);
+            const btn = document.getElementById(`toggle-graph-btn-${id}`);
+            const span = btn.querySelector('span');
+            
+            if(card.classList.contains('hidden')) {
+                card.classList.remove('hidden');
+                span.textContent = "Hide Graph";
+                window.dispatchEvent(new Event('resize'));
+            } else {
+                card.classList.add('hidden');
+                span.textContent = "Show Graph";
+            }
+        }
+
+        async function toggleGlobalFullScreen() {
+            const btnText = document.querySelector('#app-mode-btn span');
+            
+            try {
+                if (!document.fullscreenElement) {
+                     await document.documentElement.requestFullscreen();
+                     if(btnText) btnText.textContent = "Exit App Mode";
+                } else {
+                    if (document.exitFullscreen) {
+                        await document.exitFullscreen();
+                        if(btnText) btnText.textContent = "Enter App Mode";
+                    }
+                }
+            } catch (err) {
+                console.warn("Native fullscreen blocked, switching to maximized layout mode.");
+                const body = document.body;
+                body.classList.toggle('layout-maximized');
+                if (body.classList.contains('layout-maximized')) {
+                     if(btnText) btnText.textContent = "Exit App Mode";
+                } else {
+                     if(btnText) btnText.textContent = "Enter App Mode";
+                }
+                setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
+            }
+        }
+
+        function openInNewWindow() {
+            try {
+                const newWindow = window.open('', '_blank');
+                if (newWindow) {
+                    newWindow.document.open();
+                    newWindow.document.write('<!DOCTYPE html>' + document.documentElement.outerHTML);
+                    newWindow.document.close();
+                } else {
+                    const btnSpan = document.getElementById('new-window-text');
+                    if (btnSpan) {
+                        const original = btnSpan.textContent;
+                        btnSpan.textContent = "Pop-up Blocked!";
+                        btnSpan.parentElement.classList.add('bg-red-50', 'text-red-600', 'border-red-200');
+                        setTimeout(() => {
+                            btnSpan.textContent = original;
+                            btnSpan.parentElement.classList.remove('bg-red-50', 'text-red-600', 'border-red-200');
+                        }, 2000);
+                    }
+                }
+            } catch (e) {
+                console.error("Open window failed", e);
+            }
+        }
+
+        // --- Tool Management for Overlays ---
+        const overlayCanvases = {};
+
+        function setActiveTool(id, tool) {
+            const typeBtn = document.getElementById(`tool-type-${id}`);
+            const drawBtn = document.getElementById(`tool-draw-${id}`);
+            const eraseBtn = document.getElementById(`tool-erase-${id}`);
+            const canvasEl = document.getElementById(`hw-canvas${id}`); 
+            const instance = overlayCanvases[id];
+
+            if (!canvasEl) {
+                console.error("Canvas element not found for id:", `hw-canvas${id}`);
+                return;
+            }
+
+            [typeBtn, drawBtn, eraseBtn].forEach(btn => {
+                if(btn) {
+                    btn.classList.remove('tool-btn-active');
+                    btn.classList.add('tool-btn-inactive');
+                }
+            });
+
+            let activeBtn;
+            if(tool === 'type') activeBtn = typeBtn;
+            if(tool === 'draw') activeBtn = drawBtn;
+            if(tool === 'erase') activeBtn = eraseBtn;
+            
+            if(activeBtn) {
+                activeBtn.classList.remove('tool-btn-inactive');
+                activeBtn.classList.add('tool-btn-active');
+            }
+
+            if (tool === 'type') {
+                canvasEl.style.pointerEvents = 'none';
+            } else {
+                canvasEl.style.pointerEvents = 'auto';
+                if (instance) {
+                    instance.mode = (tool === 'erase') ? 'erase' : 'draw';
+                    instance.setStyles();
+                    canvasEl.style.cursor = (tool === 'erase') ? 'cell' : 'crosshair';
+                }
+            }
+        }
+
+        function clearCanvas(id) {
+            if (overlayCanvases[id]) {
+                overlayCanvases[id].clear();
+            }
+        }
+
+        // --- Sketchpad Logic ---
+        class FreehandCanvas {
+            constructor(canvasId, clearBtnId = null, eraserBtnId = null) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.isDrawing = false;
+                this.lastX = 0;
+                this.lastY = 0;
+                this.mode = 'draw';
+
+                if(clearBtnId && eraserBtnId) {
+                    this.clearBtn = document.getElementById(clearBtnId);
+                    this.eraserBtn = document.getElementById(eraserBtnId);
+                    this.clearBtn.addEventListener('click', () => this.clear());
+                    this.eraserBtn.addEventListener('click', () => this.toggleEraserBtn());
+                }
+
+                this.checkResize();
+                window.addEventListener('resize', () => this.checkResize());
+                this.canvas.addEventListener('mousedown', () => this.checkResize());
+                this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
+                this.canvas.addEventListener('mousemove', (e) => this.draw(e));
+                this.canvas.addEventListener('mouseup', () => this.stopDrawing());
+                this.canvas.addEventListener('mouseout', () => this.stopDrawing());
+                this.canvas.addEventListener('touchstart', (e) => { 
+                    if(this.canvas.style.pointerEvents !== 'none') e.preventDefault(); 
+                    if(e.touches.length > 0) this.startDrawing(e.touches[0]); 
+                });
+                this.canvas.addEventListener('touchmove', (e) => { 
+                    if(this.canvas.style.pointerEvents !== 'none') e.preventDefault(); 
+                    if(e.touches.length > 0) this.draw(e.touches[0]); 
+                });
+                this.canvas.addEventListener('touchend', () => this.stopDrawing());
+            }
+
+            checkResize() {
+                if (!this.canvas || !this.canvas.offsetParent) return;
+                const rect = this.canvas.parentElement.getBoundingClientRect();
+                if (this.canvas.width !== rect.width || this.canvas.height !== rect.height) {
+                    let tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = this.canvas.width;
+                    tempCanvas.height = this.canvas.height;
+                    let tempCtx = tempCanvas.getContext('2d');
+                    if(this.canvas.width > 0) tempCtx.drawImage(this.canvas, 0, 0);
+                    this.canvas.width = rect.width;
+                    this.canvas.height = rect.height;
+                    this.ctx.drawImage(tempCanvas, 0, 0);
+                    this.ctx.lineCap = "round";
+                    this.ctx.lineJoin = "round";
+                    this.setStyles();
+                }
+            }
+
+            setStyles() {
+                if (this.mode === 'erase') {
+                    // Erase handled in draw
+                } else {
+                    this.ctx.strokeStyle = "#000000"; 
+                    this.ctx.lineWidth = 2;
+                }
+            }
+
+            toggleEraserBtn() {
+                if (this.mode === 'draw') {
+                    this.mode = 'erase';
+                    this.eraserBtn.classList.add('bg-slate-100', 'text-indigo-700', 'border-indigo-200');
+                    this.canvas.style.cursor = 'cell';
+                } else {
+                    this.mode = 'draw';
+                    this.eraserBtn.classList.remove('bg-slate-100', 'text-indigo-700', 'border-indigo-200');
+                    this.canvas.style.cursor = 'crosshair';
+                }
+            }
+
+            getPos(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                return {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+            }
+
+            startDrawing(e) {
+                if (window.getComputedStyle(this.canvas).pointerEvents === 'none') return;
+                this.checkResize(); 
+                this.isDrawing = true;
+                const pos = this.getPos(e);
+                this.lastX = pos.x;
+                this.lastY = pos.y;
+            }
+
+            draw(e) {
+                if (!this.isDrawing) return;
+                const pos = this.getPos(e);
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.lastX, this.lastY);
+                this.ctx.lineTo(pos.x, pos.y);
+                if (this.mode === 'erase') {
+                    this.ctx.globalCompositeOperation = 'destination-out';
+                    this.ctx.lineWidth = 20;
+                    this.ctx.stroke();
+                    this.ctx.globalCompositeOperation = 'source-over';
+                } else {
+                    this.ctx.globalCompositeOperation = 'source-over';
+                    this.ctx.strokeStyle = "#000000"; 
+                    this.ctx.lineWidth = 2;
+                    this.ctx.stroke();
+                }
+                this.lastX = pos.x;
+                this.lastY = pos.y;
+            }
+
+            stopDrawing() {
+                this.isDrawing = false;
+            }
+
+            clear() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                if(this.eraserBtn) {
+                    this.mode = 'draw';
+                    this.eraserBtn.classList.remove('bg-slate-100', 'text-indigo-700', 'border-indigo-200');
+                    this.canvas.style.cursor = 'crosshair';
+                }
+                if(!this.eraserBtn) {
+                     this.setStyles();
+                }
+            }
+        }
+
+        // --- Interactive Plotting Engine ---
+        class Plotter {
+            constructor(canvasId, xRange, yRange) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.xRange = xRange;
+                this.yRange = yRange;
+                this.mouseGraphX = null;
+                this.isHovering = false;
+                
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+                this.canvas.addEventListener('mouseleave', () => this.handleMouseLeave());
+            }
+
+            resize() {
+                if (!this.canvas || !this.canvas.parentElement) return;
+                const rect = this.canvas.parentElement.getBoundingClientRect();
+                this.canvas.width = rect.width;
+                this.canvas.height = rect.height;
+                if (typeof this.draw === 'function') this.draw();
+            }
+
+            handleMouseMove(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                this.mouseGraphX = this.xRange[0] + (x / this.canvas.width) * (this.xRange[1] - this.xRange[0]);
+                this.isHovering = true;
+                if (typeof this.draw === 'function') this.draw();
+            }
+
+            handleMouseLeave() {
+                this.isHovering = false;
+                this.mouseGraphX = null;
+                if (typeof this.draw === 'function') this.draw();
+            }
+
+            toCanvasX(x) {
+                return (x - this.xRange[0]) / (this.xRange[1] - this.xRange[0]) * this.canvas.width;
+            }
+
+            toCanvasY(y) {
+                return this.canvas.height - (y - this.yRange[0]) / (this.yRange[1] - this.yRange[0]) * this.canvas.height;
+            }
+
+            drawAxes() {
+                const ctx = this.ctx;
+                const w = this.canvas.width;
+                const h = this.canvas.height;
+                const originX = this.toCanvasX(0);
+                const originY = this.toCanvasY(0);
+
+                ctx.strokeStyle = '#f1f5f9';
+                ctx.lineWidth = 1;
+
+                for(let x = Math.ceil(this.xRange[0]); x <= this.xRange[1]; x++) {
+                    let cx = this.toCanvasX(x);
+                    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke();
+                }
+                for(let y = Math.ceil(this.yRange[0]); y <= this.yRange[1]; y++) {
+                    let cy = this.toCanvasY(y);
+                    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke();
+                }
+
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(0, originY); ctx.lineTo(w, originY); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(originX, 0); ctx.lineTo(originX, h); ctx.stroke();
+            }
+
+            drawFunction(func, color) {
+                const ctx = this.ctx;
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+
+                const step = (this.xRange[1] - this.xRange[0]) / 800;
+                let first = true;
+
+                for (let x = this.xRange[0]; x <= this.xRange[1]; x += step) {
+                    const y = func(x);
+                    if (isNaN(y) || y > this.yRange[1] * 3 || y < this.yRange[0] * 3) {
+                        first = true;
+                        continue;
+                    }
+                    
+                    const cx = this.toCanvasX(x);
+                    const cy = this.toCanvasY(y);
+
+                    if (first) {
+                        ctx.moveTo(cx, cy);
+                        first = false;
+                    } else {
+                        ctx.lineTo(cx, cy);
+                    }
+                }
+                ctx.stroke();
+            }
+
+            drawTooltip(x, y, text) {
+                if (!this.isHovering) return;
+                const cx = this.toCanvasX(x);
+                const cy = this.toCanvasY(y);
+                const ctx = this.ctx;
+
+                ctx.setLineDash([4, 4]);
+                ctx.strokeStyle = '#64748b';
+                ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, this.canvas.height); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(this.canvas.width, cy); ctx.stroke();
+                ctx.setLineDash([]);
+
+                ctx.fillStyle = '#1e293b';
+                ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke();
+
+                ctx.font = '14px Inter, sans-serif'; // Bigger Tooltip Font
+                const padding = 10;
+                const w = ctx.measureText(text).width + padding * 2;
+                const h = 30;
+                let tx = cx + 10;
+                let ty = cy - 40;
+                if (tx + w > this.canvas.width) tx = cx - w - 10;
+                if (ty < 0) ty = cy + 20;
+
+                ctx.fillStyle = 'rgba(30, 41, 59, 0.95)';
+                ctx.shadowColor = 'rgba(0,0,0,0.1)'; ctx.shadowBlur = 6;
+                ctx.beginPath(); ctx.roundRect(tx, ty, w, h, 6); ctx.fill();
+                ctx.shadowBlur = 0;
+
+                ctx.fillStyle = 'white';
+                ctx.fillText(text, tx + padding, ty + 20);
+            }
+
+            drawSpecialPoint(x, y, color, label) {
+                const cx = this.toCanvasX(x);
+                const cy = this.toCanvasY(y);
+                const ctx = this.ctx;
+                
+                ctx.fillStyle = color;
+                ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI * 2); ctx.fill();
+                
+                // Label
+                ctx.fillStyle = '#475569';
+                ctx.font = '13px Inter, sans-serif'; // Bigger Label Font
+                ctx.fillText(label, cx + 10, cy - 10);
+            }
+        }
+
+        // --- Init Graph A ---
+        const plotter1 = new Plotter('canvas1', [-2, 6], [-3, 3]);
+        const func1 = (x) => Math.cbrt(x - 2);
+        plotter1.draw = function() {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.drawAxes();
+            this.drawFunction(func1, '#4f46e5'); 
+            this.drawSpecialPoint(2, 0, '#dc2626', 'Infl. Point');
+            if (this.isHovering && this.mouseGraphX !== null) {
+                const y = func1(this.mouseGraphX);
+                if (y >= -3 && y <= 3) this.drawTooltip(this.mouseGraphX, y, `(${this.mouseGraphX.toFixed(2)}, ${y.toFixed(2)})`);
+            }
+        };
+        plotter1.draw();
+
+        // --- Init Graph B ---
+        const plotter2 = new Plotter('canvas2', [-2, 5], [-5, 5]);
+        const func2 = (x) => {
+            if (Math.abs(x - 1) < 0.05) return NaN;
+            if (Math.abs(x - 2) < 0.05) return NaN; 
+            if (x < 2) return 1 / (x - 1);
+            return -1 / (x - 1);
+        };
+        plotter2.draw = function() {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.drawAxes();
+            const ctx = this.ctx;
+            const ax = this.toCanvasX(1);
+            ctx.setLineDash([5, 5]); ctx.strokeStyle = '#cbd5e1'; 
+            ctx.beginPath(); ctx.moveTo(ax, 0); ctx.lineTo(ax, this.canvas.height); ctx.stroke();
+            ctx.setLineDash([]);
+            this.drawFunction(func2, '#e11d48'); 
+            const cx = this.toCanvasX(2);
+            const cy1 = this.toCanvasY(1);
+            const cy2 = this.toCanvasY(-1);
+            ctx.fillStyle = 'white'; ctx.strokeStyle = '#e11d48'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(cx, cy1, 4, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.arc(cx, cy2, 4, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+            if (this.isHovering && this.mouseGraphX !== null) {
+                const y = func2(this.mouseGraphX);
+                if (!isNaN(y) && y >= -5 && y <= 5) this.drawTooltip(this.mouseGraphX, y, `(${this.mouseGraphX.toFixed(2)}, ${y.toFixed(2)})`);
+            }
+        };
+        plotter2.draw();
+
+        // --- Init Random Graph C ---
+        const plotter3 = new Plotter('canvas3', [-5, 5], [-5, 5]);
+        let currentRandomFunc = (x) => x; 
+        let currentAnswerText = "";
+
+        function generateRandomGraph() {
+            const types = ['linear', 'quadratic', 'cubic', 'sine', 'rational', 'power']; // Added power
+            const type = types[Math.floor(Math.random() * types.length)];
+            let displayStr = "";
+            let func;
+            
+            const r = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+            const nonZero = () => { let n = 0; while(n === 0) n = r(-3, 3); return n; };
+
+            if(type === 'linear') {
+                const m = nonZero(); const c = r(-3, 3);
+                displayStr = `f(x) = ${m}x ${c >= 0 ? '+' : ''} ${c}`;
+                func = (x) => m*x + c;
+                currentAnswerText = `Function: Linear\nDerivative: f'(x) = ${m}\nSlope: ${m}\nY-Intercept: (0, ${c})\nRoot: x = ${(-c/m).toFixed(2)}`;
+            } else if(type === 'quadratic') {
+                const a = nonZero(); const h = r(-2, 2); const k = r(-2, 2);
+                displayStr = `f(x) = ${a}(x ${h < 0 ? '+' : '-'} ${Math.abs(h)})² ${k >= 0 ? '+' : ''} ${k}`;
+                func = (x) => a * (x-h)*(x-h) + k;
+                currentAnswerText = `Function: Quadratic (Parabola)\nDerivative: f'(x) = ${2*a}(x ${h < 0 ? '+' : '-'} ${Math.abs(h)})\nVertex: (${h}, ${k})\nConcavity: ${a > 0 ? "Up" : "Down"}`;
+            } else if(type === 'cubic') {
+                const a = nonZero();
+                displayStr = `f(x) = ${a}x³`;
+                func = (x) => a * x*x*x;
+                currentAnswerText = `Function: Cubic\nDerivative: f'(x) = ${3*a}x²\nInflection Point: (0, 0)\nRange: (-∞, ∞)`;
+            } else if(type === 'sine') {
+                const a = r(1, 3); const b = r(1, 2);
+                displayStr = `f(x) = ${a}sin(${b}x)`;
+                func = (x) => a * Math.sin(b*x);
+                currentAnswerText = `Function: Trigonometric (Sine)\nDerivative: f'(x) = ${a*b}cos(${b}x)\nAmplitude: ${Math.abs(a)}\nPeriod: 2π/${b}`;
+            } else if(type === 'power') {
+                const n = r(4, 5); // higher powers
+                const a = (Math.random() < 0.5) ? 1 : -1;
+                displayStr = `f(x) = ${a === -1 ? '-' : ''}x^${n}`;
+                func = (x) => a * Math.pow(x, n);
+                currentAnswerText = `Function: Power Function (Degree ${n})\nDerivative: f'(x) = ${a*n}x^${n-1}\nRoots: x = 0\nEnd Behavior: ${n%2===0 ? "Same direction" : "Opposite direction"}`;
+            } else {
+                const a = r(1, 3); const h = r(-2, 2);
+                displayStr = `f(x) = ${a} / (x ${h < 0 ? '+' : '-'} ${Math.abs(h)})`;
+                func = (x) => (Math.abs(x-h) < 0.1) ? NaN : a/(x-h);
+                currentAnswerText = `Function: Rational\nDerivative: f'(x) = -${a} / (x ${h < 0 ? '+' : '-'} ${Math.abs(h)})²\nVertical Asymptote: x = ${h}\nHorizontal Asymptote: y = 0`;
+            }
+
+            const displayEl = document.getElementById('random-func-display');
+            if(displayEl) displayEl.textContent = displayStr;
+            
+            // Update and hide answer box
+            const ansEl = document.getElementById('random-answer-display');
+            if(ansEl) {
+                ansEl.textContent = currentAnswerText;
+                ansEl.classList.add('hidden');
+            }
+
+            currentRandomFunc = func;
+            
+            // Redraw
+            if(plotter3.draw) plotter3.draw();
+        }
+
+        function toggleAnswer() {
+            const ansEl = document.getElementById('random-answer-display');
+            if(ansEl) ansEl.classList.toggle('hidden');
+        }
+
+        plotter3.draw = function() {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.drawAxes();
+            this.drawFunction(currentRandomFunc, '#059669'); 
+            if (this.isHovering && this.mouseGraphX !== null) {
+                const y = currentRandomFunc(this.mouseGraphX);
+                if (!isNaN(y) && y >= -5 && y <= 5) this.drawTooltip(this.mouseGraphX, y, `(${this.mouseGraphX.toFixed(2)}, ${y.toFixed(2)})`);
+            }
+        };
+        
+        // Initial random generation
+        generateRandomGraph();
+
+
+        // --- Common Inits ---
+        const sketch1 = new FreehandCanvas('sketch1', 'clear1', 'eraser1');
+        const sketch2 = new FreehandCanvas('sketch2', 'clear2', 'eraser2');
+        const sketch3 = new FreehandCanvas('sketch3', 'clear3', 'eraser3'); // Side scratchpad 3
+        
+        overlayCanvases[1] = new FreehandCanvas('hw-canvas1');
+        overlayCanvases[2] = new FreehandCanvas('hw-canvas2');
+        overlayCanvases[3] = new FreehandCanvas('hw-canvas3');
+
+    </script>
+</body>
+</html>
